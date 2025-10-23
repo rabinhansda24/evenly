@@ -1,0 +1,24 @@
+{
+  "name": "evenly-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "build": "pnpm -r build",
+    "dev:backend": "pnpm -C apps/backend dev",
+    "dev:frontend": "pnpm -C apps/frontend dev",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:build:backend": "docker build -f apps/backend/Dockerfile -t evenly-backend .",
+    "docker:build:frontend": "docker build -f apps/frontend/Dockerfile -t evenly-frontend .",
+    "prod:up": "docker-compose -f docker-compose.prod.yml up -d",
+    "prod:down": "docker-compose -f docker-compose.prod.yml down"
+  }
+}

@@ -1,0 +1,19 @@
+name: Deploy Frontend (Coolify)
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'apps/frontend/**'
+      - '.github/workflows/deploy-frontend.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Coolify frontend deploy
+        env:
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+          COOLIFY_API_URL: ${{ secrets.COOLIFY_API_URL }}
+          COOLIFY_FRONTEND_APP_ID: ${{ secrets.COOLIFY_FRONTEND_APP_ID }}
+        run: |
+          curl -X POST "$COOLIFY_API_URL/api/v1/applications/$COOLIFY_FRONTEND_APP_ID/deploy"             -H "Authorization: Bearer $COOLIFY_TOKEN" -H "Content-Type: application/json" -d '{}'

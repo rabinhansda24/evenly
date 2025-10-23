@@ -1,0 +1,115 @@
+# =============================
+# General
+# =============================
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+.pnpm-store/
+pnpm-debug.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+
+# =============================
+# IDE / Editor
+# =============================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.iml
+
+# =============================
+# TypeScript
+# =============================
+*.tsbuildinfo
+
+# =============================
+# Next.js
+# =============================
+.next/
+out/
+.vercel/
+*.next-static-build-id
+coverage/
+playwright-report/
+test-results/
+*.log
+
+# =============================
+# Express / Backend
+# =============================
+apps/backend/dist/
+apps/backend/coverage/
+apps/backend/*.log
+
+# Local DBs or SQLite files
+*.sqlite
+*.db
+
+# =============================
+# Frontend
+# =============================
+apps/frontend/.next/
+apps/frontend/out/
+apps/frontend/coverage/
+apps/frontend/test-results/
+
+# =============================
+# Docker / Compose / Coolify
+# =============================
+docker-compose.override.yml
+*.pid
+*.seed
+*.pid.lock
+logs/
+tmp/
+coolify-*
+
+# =============================
+# Testing / Coverage
+# =============================
+coverage/
+lcov-report/
+apps/**/coverage/
+apps/**/playwright-report/
+apps/**/test-results/
+.vitest/
+*.snap
+*.spec.ts.snap
+
+# =============================
+# Playwright / Vitest Artifacts
+# =============================
+playwright/.cache/
+apps/frontend/.playwright/
+apps/backend/.playwright/
+apps/**/.vitest-cache/
+
+# =============================
+# CI/CD & Deployment
+# =============================
+*.pem
+*.key
+*.crt
+*.csr
+*.pfx
+*.pub
+*.ppk
+*.token
+*.secret
+*.bak
+
+# =============================
+# Miscellaneous
+# =============================
+*.tgz
+*.zip
+*.tar.gz
+*.lock
+!pnpm-lock.yaml

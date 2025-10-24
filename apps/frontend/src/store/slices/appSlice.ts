@@ -1,17 +1,2 @@
-import { createSlice } from '@reduxjs/toolkit'
-
-interface AppState {
-    ready: boolean
-}
-
-const initialState: AppState = {
-    ready: true,
-}
-
-const appSlice = createSlice({
-    name: 'app',
-    initialState,
-    reducers: {},
-})
-
-export default appSlice.reducer
+// Deprecated location. Re-export from the new top-level store directory.
+export { default } from '../../../store/slices/appSlice'

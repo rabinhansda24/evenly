@@ -1,0 +1,8 @@
+export default function GroupsPage() {
+    return (
+        <main className="container mx-auto px-6 py-12">
+            <h1 className="text-2xl font-semibold">Groups</h1>
+            <p className="text-muted-foreground mt-2">Placeholder screen for listing and creating groups.</p>
+        </main>
+    );
+}

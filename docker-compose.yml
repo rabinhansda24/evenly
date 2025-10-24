@@ -10,6 +10,8 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=4000
+      - DATABASE_URL=postgres://exp_dev:replace_me_dev@postgres:5432/evenly_dev
+      - CORS_ORIGIN=http://localhost:3000
     volumes:
       - ./apps/backend:/app/apps/backend
       - /app/apps/backend/node_modules

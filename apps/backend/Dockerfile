@@ -37,7 +37,8 @@ RUN pnpm install --no-frozen-lockfile --prod
 COPY --from=base /app/dist ./dist
 COPY --from=base /app/loader.js ./
 COPY --from=base /app/drizzle.config.ts ./
-COPY --from=base /app/src/db/migrations ./src/db/migrations
+# Place migrations where runtime code expects them: dist/db/migrations
+COPY --from=base /app/src/db/migrations ./dist/db/migrations
 
 # Expose port
 EXPOSE 4000

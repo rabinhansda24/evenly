@@ -6,23 +6,19 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
-# Copy package.json and lockfiles from parent directory
+# Copy package.json (lockfile not available in this context)
 COPY package.json ./
-COPY ../pnpm-lock.yaml ./
-COPY ../pnpm-workspace.yaml ./
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Install dependencies without frozen lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # Build stage
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy node_modules from deps stage and package files
+# Copy node_modules from deps stage and package file
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json ./
-COPY ../pnpm-lock.yaml ./
-COPY ../pnpm-workspace.yaml ./
 
 # Copy source code
 COPY . .

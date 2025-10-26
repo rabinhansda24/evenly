@@ -7,13 +7,11 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and pnpm-lock.yaml from parent directory
+# Copy package.json and install dependencies (no lockfile available in this context)
 COPY package.json ./
-COPY ../pnpm-lock.yaml ./
-COPY ../pnpm-workspace.yaml ./
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Install dependencies without frozen lockfile (since lockfile isn't in this context)
+RUN pnpm install --no-frozen-lockfile
 
 # Copy source code
 COPY . .
@@ -29,13 +27,11 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
-# Copy package.json and pnpm-lock.yaml for production dependencies
+# Copy package.json for production dependencies
 COPY package.json ./
-COPY ../pnpm-lock.yaml ./
-COPY ../pnpm-workspace.yaml ./
 
-# Install only production dependencies
-RUN pnpm install --frozen-lockfile --prod
+# Install only production dependencies without frozen lockfile
+RUN pnpm install --no-frozen-lockfile --prod
 
 # Copy built application and necessary runtime files
 COPY --from=base /app/dist ./dist

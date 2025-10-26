@@ -4,7 +4,8 @@ import app from "../../../../server.js";
 
 describe("POST /api/auth/register duplicate handling", () => {
     it("returns 409 when the email is already registered", async () => {
-        const payload = { email: "dup@example.com", name: "Dup", password: "Password123!" };
+        const unique = Math.random().toString(36).slice(2);
+        const payload = { email: `dup+${unique}@example.com`, name: "Dup", password: "Password123!" };
 
         const first = await request(app).post("/api/auth/register").send(payload);
         expect(first.status).toBe(201);

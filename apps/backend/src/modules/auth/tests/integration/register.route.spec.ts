@@ -9,7 +9,8 @@ describe("POST /api/auth/register", () => {
   });
 
   it("returns 201 for valid payload (stub)", async () => {
-    const res = await request(app).post("/api/auth/register").send({ email: "a@b.com", name: "Alice", password: "password1" });
+    const unique = Math.random().toString(36).slice(2);
+    const res = await request(app).post("/api/auth/register").send({ email: `alice+${unique}@example.com`, name: "Alice", password: "password1" });
     expect(res.status).toBe(201);
   });
 });

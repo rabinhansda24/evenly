@@ -78,7 +78,19 @@ async function startServer() {
         process.exit(1);
     }
 }
+// In test environment, initialize DB but don't bind to a port; supertest uses the app directly
+declare global {
+    // eslint-disable-next-line no-var
+    var __EVENLY_SERVER_STARTED__: boolean | undefined;
+}
 
-startServer();
+if (process.env.VITEST) {
+    await initializeDatabase();
+} else {
+    if (!globalThis.__EVENLY_SERVER_STARTED__) {
+        globalThis.__EVENLY_SERVER_STARTED__ = true;
+        startServer();
+    }
+}
 
 export default app;

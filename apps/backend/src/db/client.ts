@@ -111,14 +111,30 @@ class DatabaseService implements IDatabaseService {
 // Factory function for dependency injection with retry logic
 export async function createDatabaseService(dbConfig?: DatabaseConfig): Promise<IDatabaseService> {
     const envSsl = (process.env.DATABASE_SSL || process.env.DB_SSL || "").toLowerCase();
-    const useSsl = envSsl === 'require' || envSsl === 'true' || envSsl === '1';
+    const useSslEnv = envSsl === 'require' || envSsl === 'true' || envSsl === '1';
+
+    // Prefer provided dbConfig.connectionString, else env
+    const connectionString = dbConfig?.connectionString || process.env.DATABASE_URL || "";
+
+    // Auto-detect SSL from URL query params like ?sslmode=require or ?ssl=true
+    let useSslFromUrl = false;
+    try {
+        const u = new URL(connectionString);
+        const sslmode = (u.searchParams.get('sslmode') || '').toLowerCase();
+        const ssl = (u.searchParams.get('ssl') || '').toLowerCase();
+        if (sslmode === 'require' || ssl === 'require' || ssl === 'true' || ssl === '1') {
+            useSslFromUrl = true;
+        }
+    } catch {
+        // ignore parse errors; some non-standard URLs may not parse cleanly
+    }
 
     const config = dbConfig || {
-        connectionString: process.env.DATABASE_URL || "",
+        connectionString,
         max: process.env.DB_POOL_MAX ? Number(process.env.DB_POOL_MAX) : undefined,
         idle_timeout: process.env.DB_IDLE_TIMEOUT ? Number(process.env.DB_IDLE_TIMEOUT) : undefined,
         connect_timeout: process.env.DB_CONNECT_TIMEOUT ? Number(process.env.DB_CONNECT_TIMEOUT) : 20,
-        ssl: useSsl ? 'require' : undefined,
+        ssl: (useSslEnv || useSslFromUrl) ? 'require' : undefined,
     };
 
     if (!config.connectionString) {

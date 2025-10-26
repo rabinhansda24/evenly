@@ -3,7 +3,7 @@ import { RegisterDto } from "../validators/register.dto.js";
 import { registerUser, UserExistsError } from "../service/register.service.js";
 import { LoginDto } from "../validators/login.dto.js";
 import { loginUser, InvalidCredentialsError } from "../service/login.service.js";
-import { authenticate, setSessionCookie } from "../lib/session.js";
+import { authenticate, setSessionCookie, clearSessionCookie } from "../lib/session.js";
 
 export const router: Router = Router();
 
@@ -45,6 +45,11 @@ router.post("/login", async (req: Request, res: Response) => {
 router.get("/me", authenticate, async (req: any, res: Response) => {
   const user = req.user;
   return res.status(200).json(user);
+});
+
+router.post("/logout", async (_req: Request, res: Response) => {
+  clearSessionCookie(res);
+  return res.status(204).send();
 });
 
 export default router;

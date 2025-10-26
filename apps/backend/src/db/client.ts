@@ -141,6 +141,26 @@ export async function createDatabaseService(dbConfig?: DatabaseConfig): Promise<
         throw new Error("DATABASE_URL environment variable is required");
     }
 
+    // Log connection info for debugging
+    try {
+        const debugMode = (process.env.DB_DEBUG_LOG || '').toLowerCase();
+        const sslOn = Boolean(config.ssl) ? 'on' : 'off';
+        const ct = config.connect_timeout ?? 'default';
+        const idle = config.idle_timeout ?? 'default';
+        const maxPool = config.max ?? 'default';
+
+        if (debugMode === '1' || debugMode === 'true' || debugMode === 'raw') {
+            // Raw, unsanitized logging (contains credentials). Use only temporarily.
+            console.warn(`[DB][DEBUG-RAW] connectionString=${config.connectionString} | ssl=${sslOn} | connect_timeout=${ct}s | idle_timeout=${idle}s | max=${maxPool}`);
+        } else {
+            // Default: sanitized
+            const safe = sanitizeConnectionString(config.connectionString);
+            console.log(`[DB] Using connection: ${safe} | ssl=${sslOn} | connect_timeout=${ct}s | idle_timeout=${idle}s | max=${maxPool}`);
+        }
+    } catch {
+        // no-op if sanitization or logging fails
+    }
+
     const dbService = DatabaseService.getInstance(config);
 
     // Test connection with retry logic for Docker startup
@@ -176,4 +196,19 @@ export async function createDatabaseService(dbConfig?: DatabaseConfig): Promise<
 // Export singleton getter for convenience
 export function getDatabase(): IDatabaseService {
     return DatabaseService.getInstance();
+}
+
+/**
+ * Sanitize a Postgres connection string by masking the password.
+ * Supports standard URLs and attempts a regex fallback for edge cases.
+ */
+function sanitizeConnectionString(urlStr: string): string {
+    try {
+        const u = new URL(urlStr);
+        if (u.password) u.password = '***';
+        return u.toString();
+    } catch {
+        // Fallback regex: replace :password@ with :***@
+        return urlStr.replace(/(:\/\/[^:]+):[^@]+@/, '$1:***@');
+    }
 }

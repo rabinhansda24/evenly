@@ -5,18 +5,21 @@ import { router as authRouter } from "./modules/auth/http/auth.routes.js";
 import { initializeDatabase, getDatabase } from "./db/index.js";
 import { config } from "dotenv";
 
-// Load environment variables from .env.development in development
-// First try to load .env.development if it exists, fall back to .env
-config({ path: '.env.development' });
-if (!process.env.DATABASE_URL) {
-    config(); // fallback to .env
+// Load environment variables from .env files only in development
+// In production (Coolify), environment variables are set directly
+if (process.env.NODE_ENV !== 'production') {
+    // First try to load .env.development if it exists, fall back to .env
+    config({ path: '.env.development' });
+    if (!process.env.DATABASE_URL) {
+        config(); // fallback to .env
+    }
 }
 
 const app: Application = express();
 
 // Middleware
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "http://localhost:3000",
     credentials: true,
 }));
 app.use(express.json());

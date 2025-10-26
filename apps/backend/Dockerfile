@@ -2,7 +2,7 @@
 FROM node:20-alpine AS base
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Set working directory
 WORKDIR /app
@@ -25,19 +25,25 @@ RUN pnpm build
 FROM node:20-alpine AS production
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files for workspace setup
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/backend/package.json ./apps/backend/
 
 # Install only production dependencies
 RUN pnpm install --frozen-lockfile --prod
 
-# Copy built application
+# Copy built application and necessary runtime files
 COPY --from=base /app/apps/backend/dist ./apps/backend/dist
+COPY --from=base /app/apps/backend/loader.js ./apps/backend/
+COPY --from=base /app/apps/backend/drizzle.config.ts ./apps/backend/
+COPY --from=base /app/apps/backend/src/db/migrations ./apps/backend/src/db/migrations
+
+# Copy environment template (will be overridden by Docker environment)
+COPY apps/backend/.env.example ./apps/backend/.env.example
 
 # Expose port
 EXPOSE 4000

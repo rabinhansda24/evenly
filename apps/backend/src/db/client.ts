@@ -3,11 +3,14 @@ import postgres from "postgres";
 import * as schema from "./schema.js";
 import { config } from "dotenv";
 
-// Load environment variables from .env.development in development
-// First try to load .env.development if it exists, fall back to .env
-config({ path: '.env.development' });
-if (!process.env.DATABASE_URL) {
-    config(); // fallback to .env
+// Load environment variables from .env files only in development
+// In production (Coolify), environment variables are set directly
+if (process.env.NODE_ENV !== 'production') {
+    // First try to load .env.development if it exists, fall back to .env
+    config({ path: '.env.development' });
+    if (!process.env.DATABASE_URL) {
+        config(); // fallback to .env
+    }
 }
 
 export interface DatabaseConfig {
@@ -102,7 +105,7 @@ class DatabaseService implements IDatabaseService {
     }
 }
 
-// Factory function for dependency injection
+// Factory function for dependency injection with retry logic
 export async function createDatabaseService(dbConfig?: DatabaseConfig): Promise<IDatabaseService> {
     const config = dbConfig || {
         connectionString: process.env.DATABASE_URL || ""
@@ -114,20 +117,34 @@ export async function createDatabaseService(dbConfig?: DatabaseConfig): Promise<
 
     const dbService = DatabaseService.getInstance(config);
 
-    // Test connection on creation with better error handling
-    try {
-        const isConnected = await dbService.testConnection();
-        if (!isConnected) {
-            throw new Error("Database connection test failed");
+    // Test connection with retry logic for Docker startup
+    const maxRetries = 10;
+    const retryDelay = 2000; // 2 seconds
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            console.log(`🔄 Database connection attempt ${attempt}/${maxRetries}...`);
+            const isConnected = await dbService.testConnection();
+            if (isConnected) {
+                console.log("✅ Database connection established successfully");
+                return dbService;
+            }
+            throw new Error("Connection test failed");
+        } catch (error: any) {
+            if (error.code === '3D000') {
+                throw new Error(`Database does not exist. Please create the database first or check your DATABASE_URL configuration. Original error: ${error.message}`);
+            }
+
+            if (attempt === maxRetries) {
+                throw new Error(`Failed to establish database connection after ${maxRetries} attempts: ${error.message}`);
+            }
+
+            console.log(`⏳ Database connection failed (attempt ${attempt}/${maxRetries}), retrying in ${retryDelay / 1000}s...`);
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
         }
-    } catch (error: any) {
-        if (error.code === '3D000') {
-            throw new Error(`Database does not exist. Please create the database first or check your DATABASE_URL configuration. Original error: ${error.message}`);
-        }
-        throw new Error(`Failed to establish database connection: ${error.message}`);
     }
 
-    return dbService;
+    throw new Error("Database connection failed after all retry attempts");
 }
 
 // Export singleton getter for convenience

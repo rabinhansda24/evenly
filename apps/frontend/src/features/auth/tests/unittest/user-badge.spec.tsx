@@ -3,7 +3,7 @@ import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import React from "react";
 
 // Component under test (to be implemented in next step)
-import { UserBadge } from "@/features/auth/components/user-badge";
+import { UserBadge } from "../../components/user-badge";
 
 const originalFetch = global.fetch;
 

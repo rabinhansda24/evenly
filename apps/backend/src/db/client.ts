@@ -18,6 +18,8 @@ export interface DatabaseConfig {
     max?: number;
     idle_timeout?: number;
     connect_timeout?: number;
+    // postgres-js SSL option: 'require' | true | { rejectUnauthorized?: boolean }
+    ssl?: any;
 }
 
 export interface IDatabaseService {
@@ -38,6 +40,7 @@ class DatabaseService implements IDatabaseService {
             max: dbConfig.max || 20,
             idle_timeout: dbConfig.idle_timeout || 30,
             connect_timeout: dbConfig.connect_timeout || 10,
+            ...(dbConfig.ssl ? { ssl: dbConfig.ssl } as any : {}),
         });
 
         // Create drizzle instance
@@ -107,8 +110,15 @@ class DatabaseService implements IDatabaseService {
 
 // Factory function for dependency injection with retry logic
 export async function createDatabaseService(dbConfig?: DatabaseConfig): Promise<IDatabaseService> {
+    const envSsl = (process.env.DATABASE_SSL || process.env.DB_SSL || "").toLowerCase();
+    const useSsl = envSsl === 'require' || envSsl === 'true' || envSsl === '1';
+
     const config = dbConfig || {
-        connectionString: process.env.DATABASE_URL || ""
+        connectionString: process.env.DATABASE_URL || "",
+        max: process.env.DB_POOL_MAX ? Number(process.env.DB_POOL_MAX) : undefined,
+        idle_timeout: process.env.DB_IDLE_TIMEOUT ? Number(process.env.DB_IDLE_TIMEOUT) : undefined,
+        connect_timeout: process.env.DB_CONNECT_TIMEOUT ? Number(process.env.DB_CONNECT_TIMEOUT) : 20,
+        ssl: useSsl ? 'require' : undefined,
     };
 
     if (!config.connectionString) {

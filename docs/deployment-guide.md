@@ -81,6 +81,13 @@ PORT=4000
 DATABASE_URL=postgres://exp_prod:password@host:5432/evenly_prod
 JWT_SECRET=super-secret-production-key
 CORS_ORIGIN=https://evenly.yourdomain.com
+# If your provider requires SSL (Neon/Supabase/managed PG), enable it:
+# Accepts: require|true|1 (maps to postgres-js ssl: 'require')
+DATABASE_SSL=require
+# Optional timeouts/pool tuning (seconds)
+# DB_CONNECT_TIMEOUT=30
+# DB_IDLE_TIMEOUT=30
+# DB_POOL_MAX=20
 ```
 
 #### Frontend (.env)
@@ -95,6 +102,7 @@ NEXT_PUBLIC_APP_NAME=Evenly
 #### Backend App
 - **Build Pack:** Docker
 - **Dockerfile:** `apps/backend/Dockerfile`
+- **Base directory:** `/apps/backend` (if Coolify asks for it)
 - **Port:** 4000
 - **Health Check:** `/health`
 - **Environment:** Production variables above
@@ -102,6 +110,7 @@ NEXT_PUBLIC_APP_NAME=Evenly
 #### Frontend App
 - **Build Pack:** Docker
 - **Dockerfile:** `apps/frontend/Dockerfile`
+- **Base directory:** `/apps/frontend` (if Coolify asks for it)
 - **Port:** 3000
 - **Health Check:** `/` (Next.js default)
 - **Environment:** Production variables above
@@ -214,7 +223,10 @@ pg_dump -U exp_prod -h host evenly_prod > backup_$(date +%Y%m%d).sql
 2. **Database Connection:**
    - Verify DATABASE_URL format
    - Check database credentials
-   - Ensure database server is accessible
+   - Ensure database server is accessible from your Coolify host (firewall/allowlist)
+   - If using managed PG that enforces TLS, set `DATABASE_SSL=require`
+   - For slow networks, increase `DB_CONNECT_TIMEOUT` (default 20s in app)
+   - Prefer internal hostnames if using Coolify-managed Postgres
 
 3. **CORS Errors:**
    - Update CORS_ORIGIN environment variable
@@ -228,6 +240,10 @@ docker logs <container-id>
 
 # Test database connection
 psql $DATABASE_URL -c "SELECT 1;"
+
+# If SSL is required, psql might need this as well
+# (or append ?sslmode=require to the URL just for testing)
+# psql "${DATABASE_URL}?sslmode=require" -c "SELECT 1;"
 
 # Test API endpoints
 curl http://localhost:4000/health

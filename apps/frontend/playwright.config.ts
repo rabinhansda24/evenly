@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import path from 'path';
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
 
@@ -12,6 +13,13 @@ export default defineConfig({
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
+    },
+    webServer: {
+        command: 'pnpm dev',
+        port: 3000,
+        reuseExistingServer: !process.env.CI,
+        cwd: path.resolve(__dirname),
+        timeout: 60_000,
     },
     projects: [
         {

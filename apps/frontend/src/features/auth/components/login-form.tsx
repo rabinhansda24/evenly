@@ -1,5 +1,8 @@
 "use client";
 import React, { useState } from "react";
+import { Label } from "../../../../components/ui/label";
+import { Input } from "../../../../components/ui/input";
+import { Button } from "../../../../components/ui/button";
 
 type Props = {
     onSubmit: (data: { email: string; password: string }) => void;
@@ -15,28 +18,32 @@ export default function LoginForm({ onSubmit }: Props) {
     }
 
     return (
-        <form onSubmit={handleSubmit}>
-            <div>
-                <label htmlFor="email">Email</label>
-                <input
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
                     id="email"
                     name="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    required
                 />
             </div>
-            <div>
-                <label htmlFor="password">Password</label>
-                <input
+            <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
                     id="password"
                     name="password"
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
                 />
             </div>
-            <button type="submit">Log In</button>
+            <Button type="submit" className="w-full">Log In</Button>
         </form>
     );
 }

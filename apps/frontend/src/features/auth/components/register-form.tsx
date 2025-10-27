@@ -1,5 +1,8 @@
 "use client";
 import React, { useState } from "react";
+import { Label } from "../../../../components/ui/label";
+import { Input } from "../../../../components/ui/input";
+import { Button } from "../../../../components/ui/button";
 
 type Props = {
     onSubmit: (data: { email: string; name: string; password: string }) => void;
@@ -16,20 +19,20 @@ export default function RegisterForm({ onSubmit }: Props) {
     }
 
     return (
-        <form onSubmit={handleSubmit}>
-            <div>
-                <label htmlFor="email">Email</label>
-                <input id="email" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
             </div>
-            <div>
-                <label htmlFor="name">Name</label>
-                <input id="name" name="name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
+            <div className="grid gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" name="name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" required />
             </div>
-            <div>
-                <label htmlFor="password">Password</label>
-                <input id="password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
             </div>
-            <button type="submit">Sign Up</button>
+            <Button type="submit" className="w-full">Sign Up</Button>
         </form>
     );
 }

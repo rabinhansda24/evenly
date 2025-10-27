@@ -2,6 +2,7 @@ import express, { Application } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { router as authRouter } from "./modules/auth/http/auth.routes.js";
+import { router as groupsRouter } from "./modules/groups/http/groups.routes.js";
 import { initializeDatabase, getDatabase } from "./db/index.js";
 import { config } from "dotenv";
 
@@ -48,6 +49,7 @@ app.get("/health", async (_req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/groups", groupsRouter);
 
 // Global error handler
 app.use((error: any, _req: any, res: any, _next: any) => {

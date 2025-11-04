@@ -11,15 +11,13 @@ export default function Page() {
 
     useEffect(() => {
         // load groups on mount
-        // @ts-expect-error thunk type
-        dispatch(fetchGroups())
+        dispatch(fetchGroups() as any)
     }, [dispatch])
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!name.trim()) return
-        // @ts-expect-error thunk type
-        await dispatch(createGroup({ name: name.trim(), description: description || null }))
+        await dispatch(createGroup({ name: name.trim(), description: description || null }) as any)
         setName('')
         setDescription('')
     }

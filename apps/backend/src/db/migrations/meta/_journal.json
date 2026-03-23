@@ -8,6 +8,13 @@
       "when": 1761301246936,
       "tag": "0000_overrated_robbie_robertson",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1761301247000,
+      "tag": "0001_add_group_invite_token",
+      "breakpoints": true
     }
   ]
 }

@@ -3,6 +3,9 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { router as authRouter } from "./modules/auth/http/auth.routes.js";
 import { router as groupsRouter } from "./modules/groups/http/groups.routes.js";
+import { router as expensesRouter } from "./modules/expenses/http/expenses.routes.js";
+import { router as settlementsRouter } from "./modules/settlements/http/settlements.routes.js";
+import { router as invitesRouter } from "./modules/invites/http/invites.routes.js";
 import { initializeDatabase, getDatabase } from "./db/index.js";
 import { config } from "dotenv";
 
@@ -50,6 +53,9 @@ app.get("/health", async (_req, res) => {
 
 app.use("/api/auth", authRouter);
 app.use("/api/groups", groupsRouter);
+app.use("/api/groups", expensesRouter);
+app.use("/api/groups", settlementsRouter);
+app.use("/api/invites", invitesRouter);
 
 // Global error handler
 app.use((error: any, _req: any, res: any, _next: any) => {
@@ -65,6 +71,11 @@ const port = process.env.PORT || 4000;
 // Initialize database and start server
 async function startServer() {
     try {
+        // Fail fast if JWT_SECRET is not configured in production
+        if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET && !process.env.AUTH_SECRET) {
+            throw new Error("JWT_SECRET environment variable is required in production");
+        }
+
         console.log("🚀 Starting Evenly backend...");
 
         // Initialize database with migrations

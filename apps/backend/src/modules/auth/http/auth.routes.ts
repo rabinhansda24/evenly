@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import rateLimit from "express-rate-limit";
 import { RegisterDto } from "../validators/register.dto.js";
 import { registerUser, UserExistsError } from "../service/register.service.js";
 import { LoginDto } from "../validators/login.dto.js";
@@ -7,7 +8,15 @@ import { authenticate, setSessionCookie, clearSessionCookie } from "../lib/sessi
 
 export const router: Router = Router();
 
-router.post("/register", async (req: Request, res: Response) => {
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 20,
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
+    message: { error: { code: "RATE_LIMITED", message: "Too many requests, please try again later" } },
+});
+
+router.post("/register", authLimiter, async (req: Request, res: Response) => {
   const parsed = RegisterDto.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Invalid payload" } });
@@ -24,7 +33,7 @@ router.post("/register", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/login", async (req: Request, res: Response) => {
+router.post("/login", authLimiter, async (req: Request, res: Response) => {
   const parsed = LoginDto.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Invalid payload" } });
@@ -42,9 +51,8 @@ router.post("/login", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/me", authenticate, async (req: any, res: Response) => {
-  const user = req.user;
-  return res.status(200).json(user);
+router.get("/me", authenticate, async (req: Request, res: Response) => {
+  return res.status(200).json(req.user);
 });
 
 router.post("/logout", async (_req: Request, res: Response) => {

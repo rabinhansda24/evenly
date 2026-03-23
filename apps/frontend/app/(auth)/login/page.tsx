@@ -5,10 +5,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAppDispatch } from "../../../store/hooks";
+import { setUser } from "../../../store/slices/authSlice";
 
 export default function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const next = searchParams.get("next");
+    const dispatch = useAppDispatch();
     const [message, setMessage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [checking, setChecking] = useState(true);
@@ -20,7 +25,7 @@ export default function LoginPage() {
             try {
                 const res = await fetch(apiUrl("/api/auth/me"), { credentials: "include" });
                 if (!cancelled && res.ok) {
-                    router.replace("/dashboard");
+                    router.replace(next && next.startsWith("/") ? next : "/groups");
                     return;
                 }
             } catch {
@@ -44,8 +49,9 @@ export default function LoginPage() {
             body: JSON.stringify(data),
         });
         if (res.ok) {
-            // Successful login -> go to dashboard
-            router.replace("/dashboard");
+            const user = await res.json();
+            dispatch(setUser(user));
+            router.replace(next && next.startsWith("/") ? next : "/groups");
             return;
         } else {
             const body = await res.json().catch(() => ({}));

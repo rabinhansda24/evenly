@@ -24,11 +24,12 @@ services:
     build:
       context: .
       dockerfile: apps/frontend/Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:4000
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://localhost:4000
     volumes:
       - ./apps/frontend:/app/apps/frontend
       - /app/apps/frontend/node_modules
@@ -44,7 +45,7 @@ services:
       - POSTGRES_USER=exp_dev
       - POSTGRES_PASSWORD=replace_me_dev
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

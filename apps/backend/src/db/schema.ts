@@ -15,6 +15,7 @@ export const groups = pgTable("groups", {
     id: uuid("id").primaryKey().defaultRandom(),
     name: varchar("name", { length: 200 }).notNull(),
     description: text("description"),
+    inviteToken: varchar("invite_token", { length: 64 }).unique(),
     createdById: uuid("created_by_id").notNull().references(() => users.id),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });

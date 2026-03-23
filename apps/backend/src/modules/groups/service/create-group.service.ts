@@ -13,21 +13,22 @@ export async function createGroup(input: CreateGroupInput, currentUserId: string
 
     const db = getDatabase().getDb();
 
-    // Create group
-    const [created] = await db
-        .insert(groups)
-        .values({
-            name,
-            description: input.description ?? null,
-            createdById: currentUserId,
-        })
-        .returning({ id: groups.id, name: groups.name, description: groups.description, createdById: groups.createdById });
+    return db.transaction(async (tx) => {
+        // Create group
+        const [created] = await tx
+            .insert(groups)
+            .values({
+                name,
+                description: input.description ?? null,
+                createdById: currentUserId,
+            })
+            .returning({ id: groups.id, name: groups.name, description: groups.description, createdById: groups.createdById });
 
-    // Add owner membership for creator
-    await db
-        .insert(groupMembers)
-        .values({ groupId: created.id, userId: currentUserId, role: "owner" })
-        .returning();
+        // Add owner membership for creator (atomic with group creation)
+        await tx
+            .insert(groupMembers)
+            .values({ groupId: created.id, userId: currentUserId, role: "owner" });
 
-    return created;
+        return created;
+    });
 }

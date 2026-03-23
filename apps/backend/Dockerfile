@@ -1,47 +1,29 @@
-# Backend Dockerfile (for build context: /apps/backend)
+# Backend Dockerfile - build context is monorepo root
 FROM node:20-alpine AS base
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and install dependencies (no lockfile available in this context)
-COPY package.json ./
+COPY apps/backend/package.json ./package.json
 
-# Install dependencies without frozen lockfile (since lockfile isn't in this context)
-RUN pnpm install --no-frozen-lockfile
+RUN npm install
 
-# Copy source code
-COPY . .
+COPY apps/backend/ ./
 
-# Build the application
-RUN pnpm build
+RUN npm run build
 
 # Production stage
 FROM node:20-alpine AS production
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
 WORKDIR /app
 
-# Copy package.json for production dependencies
-COPY package.json ./
+COPY apps/backend/package.json ./package.json
+RUN npm install --omit=dev
 
-# Install only production dependencies without frozen lockfile
-RUN pnpm install --no-frozen-lockfile --prod
-
-# Copy built application and necessary runtime files
 COPY --from=base /app/dist ./dist
 COPY --from=base /app/loader.js ./
 COPY --from=base /app/drizzle.config.ts ./
-# Place migrations where runtime code expects them: dist/db/migrations
 COPY --from=base /app/src/db/migrations ./dist/db/migrations
 
-# Expose port
 EXPOSE 4000
 
-# Start the application
 CMD ["node", "dist/server.js"]

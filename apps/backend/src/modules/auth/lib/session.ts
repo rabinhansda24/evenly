@@ -19,7 +19,7 @@ export function setSessionCookie(res: Response, payload: SessionPayload) {
     res.cookie(COOKIE_NAME, token, {
         httpOnly: true,
         secure: isProd,
-        sameSite: isProd ? "lax" : "lax",
+        sameSite: "lax",
         path: "/",
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -29,7 +29,7 @@ export function clearSessionCookie(res: Response) {
     res.clearCookie(COOKIE_NAME, { path: "/" });
 }
 
-export function authenticate(req: Request & { user?: SessionPayload }, res: Response, next: NextFunction) {
+export function authenticate(req: Request, res: Response, next: NextFunction) {
     const token = req.cookies?.[COOKIE_NAME];
     if (!token) {
         return res.status(401).json({ error: { code: "NO_AUTH", message: "Missing session" } });

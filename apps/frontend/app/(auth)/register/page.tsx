@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 export default function RegisterPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const next = searchParams.get("next");
     const [message, setMessage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [checking, setChecking] = useState(true);
@@ -21,7 +23,7 @@ export default function RegisterPage() {
             try {
                 const res = await fetch(apiUrl("/api/auth/me"), { credentials: "include" });
                 if (!cancelled && res.ok) {
-                    router.replace("/dashboard");
+                    router.replace("/groups");
                     return;
                 }
             } catch {
@@ -46,7 +48,8 @@ export default function RegisterPage() {
         });
         if (res.status === 201) {
             toast.success("Account created", { description: "Redirecting to login…" });
-            setTimeout(() => router.replace("/login"), 700);
+            const loginTarget = next && next.startsWith("/") ? `/login?next=${encodeURIComponent(next)}` : "/login";
+            setTimeout(() => router.replace(loginTarget), 700);
             return;
         } else {
             const body = await res.json().catch(() => ({}));

@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { configureStore } from '@reduxjs/toolkit'
-import groupsReducer, { GroupsState } from '../../../../store/slices/groupsSlice'
+import groupsReducer, { GroupsState } from '../../../../../store/slices/groupsSlice'
 // Red: This import does not exist yet; we'll implement the thunk next
-import { fetchGroups } from '../../../../store/thunks/groupsThunks'
+import { fetchGroups } from '../../../../../store/thunks/groupsThunks'
 
 describe('fetchGroups thunk (integration)', () => {
     const makeStore = () =>

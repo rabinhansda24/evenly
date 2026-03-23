@@ -21,16 +21,16 @@ export async function loginUser(input: LoginInput): Promise<PublicUser> {
 
     // Fetch user by email; select passwordHash for verification
     const rows = await db
-        .select({ id: users.id, email: users.email, name: users.name, passwordHash: (users as any).passwordHash })
+        .select({ id: users.id, email: users.email, name: users.name, passwordHash: users.passwordHash })
         .from(users)
-        .where(eq((users as any).email, input.email))
+        .where(eq(users.email, input.email))
         .limit(1);
 
     if (rows.length === 0) {
         throw new InvalidCredentialsError();
     }
 
-    const row: any = rows[0];
+    const row = rows[0];
     if (!row.passwordHash || typeof row.passwordHash !== "string") {
         throw new InvalidCredentialsError();
     }

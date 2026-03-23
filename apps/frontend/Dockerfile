@@ -1,39 +1,35 @@
-# Frontend Dockerfile (Next.js 16) - for build context: /apps/frontend
+# Frontend Dockerfile (Next.js) - build context is monorepo root
 FROM node:20-alpine AS deps
-
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
-# Copy package.json (lockfile not available in this context)
-COPY package.json ./
+COPY apps/frontend/package.json ./package.json
 
-# Install dependencies without frozen lockfile
-RUN pnpm install --no-frozen-lockfile
+RUN npm install
 
 # Build stage
 FROM node:20-alpine AS builder
+
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@10.20.0 --activate
-# Copy node_modules from deps stage and package file
+
 COPY --from=deps /app/node_modules ./node_modules
-COPY package.json ./
+COPY --from=deps /app/package.json ./package.json
 
-# Copy source code
-COPY . .
+COPY apps/frontend/ ./
 
-# Build frontend
-RUN pnpm build
+# NEXT_PUBLIC_* vars must be available at build time (baked into JS bundles)
+ARG NEXT_PUBLIC_API_URL=http://localhost:4000
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+RUN npm run build
 
 # Production runtime (standalone)
 FROM node:20-alpine AS runner
+
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy the standalone build output
-# Requires next.config.ts with `output: 'standalone'`
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public

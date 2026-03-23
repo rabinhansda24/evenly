@@ -1,59 +1,31 @@
 "use client";
-import React from "react";
-import { apiUrl } from "../../../lib/api";
-
-type PublicUser = {
-    id: string;
-    email: string;
-    name: string;
-};
+import React, { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import { fetchCurrentUser, logoutUser } from "../../../../store/thunks/authThunks";
 
 export function UserBadge() {
-    const [loading, setLoading] = React.useState(true);
-    const [user, setUser] = React.useState<PublicUser | null>(null);
+    const dispatch = useAppDispatch();
+    const user = useAppSelector(s => s.auth.user);
+    const status = useAppSelector(s => s.auth.status);
 
-    const loadMe = React.useCallback(async () => {
-        try {
-            const res = await fetch(apiUrl("/api/auth/me"), {
-                credentials: "include",
-            });
-            if (res.ok) {
-                const data = (await res.json()) as PublicUser;
-                setUser(data);
-            } else {
-                setUser(null);
-            }
-        } finally {
-            setLoading(false);
+    useEffect(() => {
+        if (status === 'idle') {
+            void dispatch(fetchCurrentUser());
         }
-    }, []);
+    }, [dispatch, status]);
 
-    React.useEffect(() => {
-        loadMe();
-    }, [loadMe]);
-
-    const onLogout = async () => {
-        await fetch(apiUrl("/api/auth/logout"), {
-            method: "POST",
-            credentials: "include",
-        });
-        // Re-validate session
-        setLoading(true);
-        await loadMe();
-    };
-
-    if (loading) return <span>Loading...</span>;
+    if (status === 'idle' || status === 'loading') return <span>Loading...</span>;
 
     if (user) {
         return (
-            <div>
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
                 <span>Hello, {user.name}</span>
-                <button onClick={onLogout} aria-label="Logout">Logout</button>
+                <button onClick={() => void dispatch(logoutUser())} aria-label="Logout">
+                    Logout
+                </button>
             </div>
         );
     }
 
-    return (
-        <a href="/login">Sign in</a>
-    );
+    return <a href="/login">Sign in</a>;
 }

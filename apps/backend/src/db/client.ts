@@ -141,22 +141,11 @@ export async function createDatabaseService(dbConfig?: DatabaseConfig): Promise<
         throw new Error("DATABASE_URL environment variable is required");
     }
 
-    // Log connection info for debugging
+    // Log sanitized connection info
     try {
-        const debugMode = (process.env.DB_DEBUG_LOG || '').toLowerCase();
+        const safe = sanitizeConnectionString(config.connectionString);
         const sslOn = Boolean(config.ssl) ? 'on' : 'off';
-        const ct = config.connect_timeout ?? 'default';
-        const idle = config.idle_timeout ?? 'default';
-        const maxPool = config.max ?? 'default';
-
-        if (debugMode === '1' || debugMode === 'true' || debugMode === 'raw') {
-            // Raw, unsanitized logging (contains credentials). Use only temporarily.
-            console.warn(`[DB][DEBUG-RAW] connectionString=${config.connectionString} | ssl=${sslOn} | connect_timeout=${ct}s | idle_timeout=${idle}s | max=${maxPool}`);
-        } else {
-            // Default: sanitized
-            const safe = sanitizeConnectionString(config.connectionString);
-            console.log(`[DB] Using connection: ${safe} | ssl=${sslOn} | connect_timeout=${ct}s | idle_timeout=${idle}s | max=${maxPool}`);
-        }
+        console.log(`[DB] Using connection: ${safe} | ssl=${sslOn} | connect_timeout=${config.connect_timeout ?? 'default'}s | idle_timeout=${config.idle_timeout ?? 'default'}s | max=${config.max ?? 'default'}`);
     } catch {
         // no-op if sanitization or logging fails
     }

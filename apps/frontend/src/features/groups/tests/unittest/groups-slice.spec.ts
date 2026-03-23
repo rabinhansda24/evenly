@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest'
 
 // Intentionally import from the planned implementation path (does not exist yet)
-import groupsReducer, { GroupsState, setGroups } from '../../../../store/slices/groupsSlice'
+import groupsReducer, { GroupsState, setGroups } from '../../../../../store/slices/groupsSlice'
 
 describe('groupsSlice (Redux)', () => {
     it('has expected initial state', () => {

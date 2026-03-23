@@ -1,5 +1,5 @@
 import { setGroups } from '../slices/groupsSlice'
-import { apiUrl } from '../../lib/api'
+import { apiUrl } from '../../src/lib/api'
 
 export function fetchGroups() {
     return async (dispatch: (action: any) => void) => {

@@ -114,3 +114,5 @@ apps/**/.vitest-cache/
 *.tar.gz
 *.lock
 !pnpm-lock.yaml
+CLAUDE.md
+.claude/

@@ -3,6 +3,7 @@ import { Header } from "@/components/site/header"
 import { Footer } from "@/components/site/footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Users, Receipt, Calculator, ShieldCheck, Zap, ArrowRight } from "lucide-react"
 
 export default function Home() {
@@ -109,6 +110,52 @@ export default function Home() {
                 <CardDescription>Everyone sees a clear balance and settles.</CardDescription>
               </CardHeader>
             </Card>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section id="faq" className="container mx-auto px-4 md:px-6 py-12 md:py-16">
+          <div className="mx-auto max-w-2xl">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-semibold">Frequently asked questions</h2>
+              <p className="mt-2 text-muted-foreground">Everything you need to know about Evenly.</p>
+            </div>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="free">
+                <AccordionTrigger>Is Evenly free to use?</AccordionTrigger>
+                <AccordionContent>
+                  Yes, Evenly is completely free. Create as many groups and add as many expenses as you need.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="split">
+                <AccordionTrigger>How are expenses split?</AccordionTrigger>
+                <AccordionContent>
+                  Expenses are split equally among all group members. When you add an expense, everyone in the group
+                  gets an equal share and balances are updated in real time.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="invite">
+                <AccordionTrigger>How do I invite friends to a group?</AccordionTrigger>
+                <AccordionContent>
+                  As the group owner you can invite by email or generate a shareable invite link. Friends who click the
+                  link join instantly if they already have an account, or are prompted to register first.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="settle">
+                <AccordionTrigger>Do I need to settle through the app?</AccordionTrigger>
+                <AccordionContent>
+                  No. Evenly helps you track who owes whom — you settle outside the app however you prefer (cash,
+                  bank transfer, UPI, etc.). Once settled, just record the settlement in the app to clear the balance.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="realtime">
+                <AccordionTrigger>Are updates shown in real time?</AccordionTrigger>
+                <AccordionContent>
+                  Yes. Evenly uses Server-Sent Events so everyone in a group sees new expenses and settlements
+                  instantly without needing to refresh the page.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         </section>
 
